@@ -32,6 +32,12 @@ public class KeyboardControllerModuleImpl: NSObject {
           name: UITextField.textDidEndEditingNotification,
           object: input
         )
+        NotificationCenter.default.addObserver(
+          self,
+          selector: #selector(onResponderResigned(_:)),
+          name: UITextView.textDidEndEditingNotification,
+          object: input
+        )
       } else {
         responder?.resignFirstResponder()
       }
@@ -72,6 +78,6 @@ public class KeyboardControllerModuleImpl: NSObject {
       }
     }
 
-    NotificationCenter.default.removeObserver(self, name: UITextField.textDidEndEditingNotification, object: input)
+    NotificationCenter.default.removeObserver(self, name: UITextView.textDidEndEditingNotification, object: input)
   }
 }

@@ -152,8 +152,10 @@ class KCTextInputCompositeDelegate: NSObject, UITextViewDelegate, UITextFieldDel
     shouldChangeCharactersIn range: NSRange,
     replacementString string: String
   ) -> Bool {
+    let oldText = textField.text ?? ""
+    let newText = (oldText as NSString).replacingCharacters(in: range, with: string)
     defer {
-      self.onTextChange(textField.text)
+      self.onTextChange(newText)
     }
 
     if #unavailable(iOS 13.0) {

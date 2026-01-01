@@ -55,14 +55,21 @@ export function useEventHandlerRegistration(
       }
     };
 
+    let cancelled = false;
+
     if (viewTagRef.current) {
       attachWorkletHandlers();
     } else {
       // view may not be mounted yet - defer registration until call-stack becomes empty
-      queueMicrotask(attachWorkletHandlers);
+      queueMicrotask(() => {
+        if (!cancelled) {
+          attachWorkletHandlers();
+        }
+      });
     }
 
     return () => {
+      cancelled = true;
       const viewTag = findNodeHandle(viewTagRef.current);
 
       if (viewTag) {

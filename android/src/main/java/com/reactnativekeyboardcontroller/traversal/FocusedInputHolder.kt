@@ -13,6 +13,11 @@ object FocusedInputHolder {
 
   fun get(): EditText? = input?.get()
 
+  fun clear() {
+    input = null
+  }
+
+
   fun focus() {
     input?.get()?.focus()
   }

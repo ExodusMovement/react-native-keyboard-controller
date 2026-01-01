@@ -83,10 +83,17 @@ internal class KeyboardAnimationController {
     pendingRequestOnReady = onRequestReady
 
     // update our state manager
-    InteractiveKeyboardProvider.isInteractive = true
+    val wic = ViewCompat.getWindowInsetsController(view)
+    if (wic == null) {
+      // Avoid wedging "pending request" state when controller is unavailable.
+      InteractiveKeyboardProvider.isInteractive = false
+      pendingRequestCancellationSignal = null
+      pendingRequestOnReady = null
+      return
+    }
 
-    // Finally we make a controlWindowInsetsAnimation() request:
-    ViewCompat.getWindowInsetsController(view)?.controlWindowInsetsAnimation(
+     // Finally we make a controlWindowInsetsAnimation() request:
+    wic.controlWindowInsetsAnimation(
       // We're only catering for IME animations in this listener
       WindowInsetsCompat.Type.ime(),
       // Animation duration. This is not used by the system, and is only passed to any
@@ -179,7 +186,11 @@ internal class KeyboardAnimationController {
       1f,
       // Finally we calculate the animation progress fraction. This value is passed through
       // to any WindowInsetsAnimation.Callbacks, but it is not used by the system.
-      (coercedBottom - startBottom) / (endBottom - startBottom).toFloat(),
+      run {
+        val denom = (endBottom - startBottom).toFloat()
+        val raw = if (denom == 0f) 0f else ((coercedBottom - startBottom) / denom)
+        raw.coerceIn(0f, 1f)
+      },
     )
 
     return consumedDy
@@ -315,6 +326,7 @@ internal class KeyboardAnimationController {
   private fun onRequestReady(controller: WindowInsetsAnimationControllerCompat) {
     // The request is ready, so clear out the pending cancellation signal
     pendingRequestCancellationSignal = null
+    InteractiveKeyboardProvider.isInteractive = false
     // Store the current WindowInsetsAnimationController
     insetsAnimationController = controller
 

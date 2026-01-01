@@ -14,8 +14,9 @@ fun ThemedReactContext?.dispatchEvent(
   viewId: Int,
   event: Event<*>,
 ) {
+  val ctx = this ?: return
   val eventDispatcher: EventDispatcher? =
-    UIManagerHelper.getEventDispatcherForReactTag(this as ReactContext, viewId)
+    UIManagerHelper.getEventDispatcherForReactTag(ctx as ReactContext, viewId)
   eventDispatcher?.dispatchEvent(event)
 }
 

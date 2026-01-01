@@ -110,6 +110,9 @@ public class FocusedInputObserver: NSObject {
     isMounted = false
     // swiftlint:disable:next notification_center_detachment
     NotificationCenter.default.removeObserver(self)
+    removeObservers(newResponder: nil)
+    currentInput = nil
+    currentResponder = nil
   }
 
   @objc func didReceiveFocus(_: Notification) {
@@ -229,7 +232,7 @@ public class FocusedInputObserver: NSObject {
   }
 
   private func removeObservers(newResponder: UIResponder?) {
-    if newResponder == currentResponder || observation == nil {
+    if newResponder == currentResponder {
       return
     }
 

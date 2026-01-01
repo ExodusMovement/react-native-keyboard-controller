@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.core.view.ViewCompat
@@ -59,6 +60,7 @@ class EdgeToEdgeReactViewGroup(
   private var eventView: ReactViewGroup? = null
   private var wasMounted = false
   internal var callback: KeyboardAnimationCallback? = null
+  private var lastInsetsRootViewRef: java.lang.ref.WeakReference<View>? = null
   private val config =
     KeyboardAnimationCallbackConfig(
       persistentInsetTypes = WindowInsetsCompat.Type.systemBars(),
@@ -102,6 +104,12 @@ class EdgeToEdgeReactViewGroup(
   private fun setupWindowInsets() {
     val rootView = reactContext.rootView
     if (rootView != null) {
+      val last = lastInsetsRootViewRef?.get()
+      if (last === rootView) {
+        return
+      }
+      lastInsetsRootViewRef = java.lang.ref.WeakReference(rootView)
+
       ViewCompat.setOnApplyWindowInsetsListener(rootView) { v, insets ->
         val content = reactContext.content
         val params =
@@ -181,6 +189,7 @@ class EdgeToEdgeReactViewGroup(
 
   private fun removeKeyboardCallbacks() {
     callback?.destroy()
+    callback = null
 
     // capture view into closure, because if `onDetachedFromWindow` and `onAttachedToWindow`
     // dispatched synchronously after each other (open application on Fabric), then `.post`
@@ -192,6 +201,10 @@ class EdgeToEdgeReactViewGroup(
     // see https://github.com/kirillzyusko/react-native-keyboard-controller/issues/242
     // for more details
     Handler(Looper.getMainLooper()).post { view.removeSelf() }
+    eventView = null
+    Handler(Looper.getMainLooper()).post {
+      view.removeSelf()
+    }
   }
 
   private fun reApplyWindowInsets() {
