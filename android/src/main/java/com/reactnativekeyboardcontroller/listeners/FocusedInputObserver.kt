@@ -98,20 +98,31 @@ class FocusedInputObserver(
   }
   private val focusListener =
     OnGlobalFocusChangeListener { oldFocus, newFocus ->
-      // unfocused or focus was changed
-      if (newFocus == null || oldFocus != null) {
-        lastFocusedInput?.removeOnLayoutChangeListener(layoutListener)
-        lastFocusedInput?.let { input ->
-          val watcher = textWatcher
-          // remove it asynchronously to avoid crash in stripe input
-          // see https://github.com/stripe/stripe-android/issues/10178
-          input.post {
-            input.removeTextChangedListener(watcher)
+      // If we had a focused input previously, clean it up whenever focus changes away from it.
+      val prev = lastFocusedInput
+      if (prev != null && prev !== newFocus) {
+        prev.removeOnLayoutChangeListener(layoutListener)
+
+        val watcher = textWatcher
+        // remove asynchronously to avoid known crashes in some inputs (e.g. Stripe)
+        prev.post {
+          if (watcher != null) {
+            prev.removeTextChangedListener(watcher)
           }
         }
+
         selectionSubscription?.invoke()
+        selectionSubscription = null
+        textWatcher = null
         lastFocusedInput = null
+
+        // If focus moved away from EditText to a non-EditText (or null), clear global holder.
+        if (newFocus !is EditText) {
+          FocusedInputHolder.clear()
+          dispatchEventToJS(noFocusedInputEvent)
+        }
       }
+
       if (newFocus is EditText) {
         lastFocusedInput = newFocus
         newFocus.addOnLayoutChangeListener(layoutListener)
@@ -131,8 +142,9 @@ class FocusedInputObserver(
           },
         )
       }
-      // unfocused
+      // Unfocused (no focused view at all)
       if (newFocus == null) {
+        FocusedInputHolder.clear()
         dispatchEventToJS(noFocusedInputEvent)
       }
     }

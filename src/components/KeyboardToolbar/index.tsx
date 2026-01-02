@@ -70,6 +70,9 @@ const KeyboardToolbar: React.FC<KeyboardToolbarProps> & {
   const buttonContainer = button ?? Button;
   const iconContainer = icon ?? Arrow;
 
+  const leftInset = insets?.left ?? 0;
+  const rightInset = insets?.right ?? 0;
+
   useEffect(() => {
     const subscription = FocusedInputEvents.addListener("focusDidSet", (e) => {
       setInputs(e);
@@ -85,24 +88,24 @@ const KeyboardToolbar: React.FC<KeyboardToolbarProps> & {
       },
       !KEYBOARD_HAS_ROUNDED_CORNERS
         ? {
-            paddingLeft: insets?.left,
-            paddingRight: insets?.right,
+            paddingLeft: leftInset,
+            paddingRight: rightInset,
           }
         : null,
       KEYBOARD_HAS_ROUNDED_CORNERS ? styles.floating : null,
     ],
-    [colorScheme, opacity, theme, insets],
+    [colorScheme, opacity, theme, leftInset, rightInset],
   );
   const containerStyle = useMemo(
     () => [
       KEYBOARD_HAS_ROUNDED_CORNERS
         ? {
-            marginLeft: (insets?.left ?? 0) + 16,
-            marginRight: (insets?.right ?? 0) + 16,
+            marginLeft: leftInset + 16,
+            marginRight: rightInset + 16,
           }
         : null,
     ],
-    [insets],
+    [leftInset, rightInset],
   );
   const offset = useMemo(
     () => ({

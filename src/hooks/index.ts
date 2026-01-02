@@ -267,6 +267,11 @@ export function useFocusedInputHandler(
 
   const { doDependenciesDiffer } = useHandler<never, never>(handler, deps);
 
+  const eventNames = [
+    ...(handler.onChangeText ? ["onFocusedInputTextChanged"] : []),
+    ...(handler.onSelectionChange ? ["onFocusedInputSelectionChanged"] : []),
+  ];
+
   const eventHandler = useEvent<
     FocusedInputSelectionChangedEvent | FocusedInputTextChangedEvent
   >(
@@ -281,11 +286,15 @@ export function useFocusedInputHandler(
         handler.onSelectionChange?.(event as FocusedInputSelectionChangedEvent);
       }
     },
-    ["onFocusedInputTextChanged", "onFocusedInputSelectionChanged"],
+    eventNames,
     doDependenciesDiffer,
   );
 
   useLayoutEffect(() => {
+    // If no handlers provided, don't register for any focused-input events.
+    if (eventNames.length === 0) {
+      return;
+    }
     const cleanup = context.setInputHandlers(eventHandler);
 
     return () => cleanup();

@@ -143,10 +143,16 @@ RCT_EXPORT_VIEW_PROPERTY(enabled, BOOL)
 
 - (void)createSharedInputAccessoryView
 {
-  CGRect internalFrame = _contentView.subviews[0].frame;
+  CGFloat height = 0;
+  if (_contentView.subviews.count > 0) {
+    height = _contentView.subviews[0].frame.size.height;
+  } else {
+    // Safe default if no children yet; alternatively, early-return.
+    height = 0;
+  }
   _sharedInputAccessoryView = [KeyboardExtenderContainerView
       createWithFrame:CGRectMake(
-                          0, 0, UIScreen.mainScreen.bounds.size.width, internalFrame.size.height)
+                          0, 0, UIScreen.mainScreen.bounds.size.width, height)
           contentView:_contentView];
 }
 

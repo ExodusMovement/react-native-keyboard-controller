@@ -37,10 +37,16 @@ const dismiss = async (options?: Partial<DismissOptions>): Promise<void> => {
       return;
     }
 
-    const subscription = KeyboardEvents.addListener("keyboardDidHide", () => {
-      resolve(undefined);
+    const cleanup = () => {
       subscription.remove();
-    });
+      clearTimeout(timeout);
+      resolve(undefined);
+    };
+
+    const subscription = KeyboardEvents.addListener("keyboardDidHide", cleanup);
+
+    // Safety timeout to prevent memory leak if native event never fires
+    const timeout = setTimeout(cleanup, 500);
 
     KeyboardControllerNative.dismiss(keepFocus, animated);
   });
