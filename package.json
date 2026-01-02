@@ -70,13 +70,13 @@
     "ios",
     "android"
   ],
-  "repository": "https://github.com/kirillzyusko/react-native-keyboard-controller",
+  "repository": "https://github.com/ExodusMovement/react-native-keyboard-controller",
   "author": "Kiryl Ziusko <zyusko.kirik@gmail.com> (https://github.com/kirillzyusko)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kirillzyusko/react-native-keyboard-controller/issues"
+    "url": "https://github.com/ExodusMovement/react-native-keyboard-controller/issues"
   },
-  "homepage": "https://kirillzyusko.github.io/react-native-keyboard-controller/",
+  "homepage": "https://github.com/ExodusMovement/react-native-keyboard-controller",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
